@@ -18,19 +18,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
-import java.util.concurrent.Callable;
 
 public class DatafakerGen {
 
     public static void main(String[] args) {
-        final Configuration conf = parseArg(args);
+        final Configuration conf = ArgumentParser.parseArg(args);
         final Map<String, Object> outputs;
         try (BufferedReader br = Files.newBufferedReader(Paths.get(conf.getOutputConf()), StandardCharsets.UTF_8)) {
             outputs = new Yaml().loadAs(br, Map.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        final Map<String, Object> formats = (Map<String, Object>) outputs.get("formats");
 
         final ServiceLoader<Format> fs = ServiceLoader.load(Format.class);
         final Map<String, Format> name2Format = new HashMap<>();
@@ -44,93 +42,55 @@ public class DatafakerGen {
         for (Sink s : sinks) {
             name2sink.put(s.getName().toLowerCase(Locale.ROOT), s);
         }
-        final String sinkName = conf.getSink().toLowerCase(Locale.ROOT);
-        final Map<String, Object> sinksFromConfig = (Map<String, Object>) outputs.get("sinks");
-        final Map<String, String> sinkConf = (Map<String, String>) sinksFromConfig.get(sinkName);
-        final Sink sink = name2sink.get(sinkName);
-        Objects.requireNonNull(sink,
-                "Sink '" + conf.getSink() + "' is not available. The list of available sinks: " + name2sink.keySet());
+        validateSinks(conf, name2sink);
 
         final List<Field> fields = SchemaLoader.getFields(conf);
         final Schema schema = Schema.of(fields.toArray(new Field[0]));
-        sink.run(sinkConf,
-                n -> findAndValidateTransformerByName(conf.getFormat(), name2Format, formats, schema)
-                        .generate(schema, n), conf.getNumberOfLines());
+        conf.getSinks().forEach((sinkConfigName) -> {
+            SinkToFormat sink2FormatBySinkConfigName = getSink2FormatByConfigName(sinkConfigName, conf.getDefaultFormat());
+
+            Map<String, String> sinkOutputConfig = getSinkOutputConfig(outputs, sink2FormatBySinkConfigName);
+            Map<String, Object> formatOutputConfig = getFormatOutputConfig(outputs);
+            final Map<String, String> config = new HashMap<>(sinkOutputConfig);
+            config.putAll(getFromatConfig(formatOutputConfig, sink2FormatBySinkConfigName.getFormatName()));
+
+            final Sink sink = name2sink.get(sink2FormatBySinkConfigName.getSinkName());
+            sink.run(config,
+                    n -> findAndValidateTransformerByName(sink2FormatBySinkConfigName.getFormatName(), name2Format, formatOutputConfig, schema)
+                            .generate(schema, n), conf.getNumberOfLines());
+        });
+
     }
 
-
-    @FunctionalInterface
-    private static interface TriConsumer<A, B, C> {
-        void accept(A a, B b, C c);
-
+    private static Map<String, Object> getFormatOutputConfig(Map<String, Object> outputs) {
+        final Map<String, Object> formats = (Map<String, Object>) outputs.get("formats");
+        return formats;
     }
-    private static final TriConsumer<Boolean, Callable<?>, String> CONSUMER4ARG_PARSE = (aBoolean, callable, s) -> {
-        if (aBoolean) {
-            try {
-                callable.call();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+
+    private static Map<String, String> getSinkOutputConfig(Map<String, Object> outputs, SinkToFormat sink2FormatByConfigName) {
+        final Map<String, Object> sinksFromConfig = (Map<String, Object>) outputs.get("sinks");
+        Map<String, String> sinkOutputConfig = (Map<String, String>) sinksFromConfig.get(sink2FormatByConfigName.getSinkName());
+        return sinkOutputConfig;
+    }
+
+    private static SinkToFormat getSink2FormatByConfigName(String sinkConfigName, String defaultFormat) {
+        if (sinkConfigName.contains(":")) {
+            String[] sinkFormat = sinkConfigName.split(":");
+            final String sinkName = sinkFormat[0].toLowerCase(Locale.ROOT);
+            return new SinkToFormat(sinkName, sinkFormat[1]);
         } else {
-            System.err.println(s);
-            System.exit(1);
+            final String sinkName = sinkConfigName.toLowerCase(Locale.ROOT);
+            return new SinkToFormat(sinkName, defaultFormat);
         }
-    };
-
-    public static Configuration parseArg(String[] args) {
-        final Configuration.ConfigurationBuilder builder = Configuration.builder();
-        if (args == null || args.length == 0) {
-            return builder.build();
-        }
-        for (int i = 0; i < args.length; i++) {
-            final int nextI = i + 1;
-            switch (args[i]) {
-                case "-n":
-                    CONSUMER4ARG_PARSE.accept(i < args.length - 1,
-                            () -> builder.numberOfLines(Integer.parseInt(args[nextI])), "Number of lines missed");
-                    i++;
-                    break;
-                case "-s":
-                    CONSUMER4ARG_PARSE.accept(i < args.length - 1,
-                            () -> builder.schema(args[nextI]), "Schema file missed");
-                    i++;
-                    break;
-                case "-f":
-                    CONSUMER4ARG_PARSE.accept(i < args.length - 1,
-                            () -> builder.format(args[nextI]), "Format is missed");
-                    i++;
-                    break;
-                case "-oc":
-                    CONSUMER4ARG_PARSE.accept(i < args.length - 1,
-                            () -> builder.outputConf(args[nextI]), "Config for output is missed");
-                    i++;
-                    break;
-                case "-sink":
-                    CONSUMER4ARG_PARSE.accept(i < args.length - 1,
-                            () -> builder.sink(args[nextI]), "Sink is missed");
-                    i++;
-                    break;
-                case "--help":
-                case "-h":
-                    showHelp();
-                    System.exit(0);
-                default:
-                    System.err.println("Unknown arg '" + args[i] + "'");
-                    System.out.println();
-                    showHelp();
-                    System.exit(1);
-            }
-        }
-        return builder.build();
     }
 
-    private static void showHelp() {
-        System.out.println("Help:");
-        System.out.println("-f\t\tFormat to use while output");
-        System.out.println("-oc\t\tConfig file for output to use");
-        System.out.println("-n\t\tNumber of records to generate");
-        System.out.println("-s\t\tSchema file to use");
-        System.out.println("-sink\t\tOutput to use");
+    private static void validateSinks(Configuration conf, Map<String, Sink> name2sink) {
+        conf.getSinks().forEach((sinkConfigName) -> {
+            var sinkName = sinkConfigName.contains(":") ? sinkConfigName.split(":")[0] : sinkConfigName;
+            final Sink sink = name2sink.get(sinkName);
+            Objects.requireNonNull(sink,
+                    "Sink '" + conf.getSinks() + "' is not available. The list of available sinks: " + name2sink.keySet());
+        });
     }
 
     private static Transformer<?, ?> findAndValidateTransformerByName(String formatName,
@@ -140,11 +100,33 @@ public class DatafakerGen {
         final Format format = name2Format.get(formatNameUpper);
         if (format != null) {
             format.validateSchema(schema);
-            return format.getTransformer((Map<String, String>) formatConf.get(format.getName()));
+            return format.getTransformer(getFromatConfig(formatConf, format.getName()));
         }
 
         var errorMessage = "'" + formatName + "'" + " is not supported yet. Available formats: ["
                 + String.join(", ", name2Format.keySet()) + "]";
         throw new IllegalArgumentException(errorMessage);
+    }
+
+    private static Map<String, String> getFromatConfig(Map<String, Object> formatConf, String formatName) {
+        return (Map<String, String>) formatConf.get(formatName);
+    }
+
+    private static class SinkToFormat {
+        private final String sinkName;
+        private final String formatName;
+
+        public SinkToFormat(String sinkName, String formatName) {
+            this.sinkName = sinkName;
+            this.formatName = formatName;
+        }
+
+        public String getSinkName() {
+            return sinkName;
+        }
+
+        public String getFormatName() {
+            return formatName;
+        }
     }
 }

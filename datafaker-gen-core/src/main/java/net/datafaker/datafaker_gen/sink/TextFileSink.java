@@ -19,6 +19,10 @@ public class TextFileSink implements Sink {
     @Override
     public void run(Map<String, ?> config, Function<Integer, ?> function, int numberOfLines) {
         String filepath = (String) config.get("filepath");
+        String extension = (String) config.get("extension");
+        if (extension != null) {
+            filepath += extension;
+        }
         String mode = (String) config.get("mode");
         boolean createParentDirs = (boolean) config.get("create_parent_dirs");
         Path path = Paths.get(filepath);
