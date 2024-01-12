@@ -1,0 +1,18 @@
+sinks:
+  rabbitmq:
+    batchsize: 1 # when 1 message contains 1 document, when >1 message contains a batch of documents
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    exchange: test.direct.exchange
+    routingkey: products.key
+formats:
+  csv:
+    quote: "@"
+    separator: $$$$$$$
+  json:
+    formattedAs: "[]"
+  yaml:
+  xml:
+    pretty: true

@@ -1,0 +1,8 @@
+default_locale: en-EN
+fields:
+  - name: lastname
+    generators: [ Name#lastName ]
+  - name: firstname
+    generators: [ Name#firstName ]
+  - name: id
+    generators: [ Name#firstName ]
