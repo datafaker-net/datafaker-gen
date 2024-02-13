@@ -23,7 +23,7 @@
 
     <modules>
         <module>datafaker-gen-core</module>
-        <module>datafaker-gen-examples/datafaker-gen-rabbitmq</module>
+        <module>datafaker-gen-examples</module>
     </modules>
 
     <dependencyManagement>
