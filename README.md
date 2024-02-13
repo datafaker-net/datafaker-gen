@@ -1,4 +1,3 @@
-The project moved to https://github.com/datafaker-net/datafaker-gen
 # datafaker-gen
 
 Datafaker-gen is a [datafaker](https://github.com/datafaker-net/datafaker) based command line generator.
