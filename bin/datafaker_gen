@@ -2,6 +2,6 @@
 # datafaker_gen - Script to launch datafaker_gen on Unix, Linux or Mac OS
 
 BINPATH=$(dirname $0)
-exec java -cp "$BINPATH/../target/*" net.datafaker.datafaker_gen.DatafakerGen "$@"
+exec java -cp "$BINPATH/../datafaker-gen-common/target/*" net.datafaker.datafaker_gen.DatafakerGen "$@"
 
 # End datafaker_gen

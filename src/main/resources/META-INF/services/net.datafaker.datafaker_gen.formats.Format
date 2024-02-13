@@ -1,5 +1,0 @@
-net.datafaker.datafaker_gen.formats.CsvFormat
-net.datafaker.datafaker_gen.formats.JsonFormat
-net.datafaker.datafaker_gen.formats.SqlFormat
-net.datafaker.datafaker_gen.formats.XmlFormat
-net.datafaker.datafaker_gen.formats.YamlFormat

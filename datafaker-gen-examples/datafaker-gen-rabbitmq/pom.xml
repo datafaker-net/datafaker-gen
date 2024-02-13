@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <relativePath>../../..</relativePath>
+        <relativePath>../../pom.xml</relativePath>
         <groupId>net.datafaker</groupId>
         <artifactId>datafaker-gen</artifactId>
         <version>1.0-SNAPSHOT</version>
@@ -13,15 +13,11 @@
     <version>1.0-SNAPSHOT</version>
     <name>RabbitMq Datafaker Gen</name>
 
-    <properties>
-        <version.datafaker.gen>${project.parent.version}</version.datafaker.gen>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>net.datafaker</groupId>
-            <artifactId>datafaker-gen</artifactId>
-            <version>${version.datafaker.gen}</version>
+            <artifactId>datafaker-gen-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.rabbitmq</groupId>
