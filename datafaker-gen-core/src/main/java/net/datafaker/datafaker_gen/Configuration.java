@@ -1,19 +1,22 @@
 package net.datafaker.datafaker_gen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Configuration {
     private final int numberOfLines;
     private final String schema;
     private final String format;
     private final String outputConf;
 
-    private final String sink;
+    private final List<String> sinks;
 
-    private Configuration(int numberOfLines, String schema, String format, String outputConf, String sink) {
+    private Configuration(int numberOfLines, String schema, String format, String outputConf, List<String> sinks) {
         this.numberOfLines = numberOfLines;
         this.schema = schema;
         this.format = format;
         this.outputConf = outputConf;
-        this.sink = sink;
+        this.sinks = sinks;
     }
 
     public int getNumberOfLines() {
@@ -24,7 +27,7 @@ public class Configuration {
         return schema;
     }
 
-    public String getFormat() {
+    public String getDefaultFormat() {
         return format;
     }
 
@@ -32,8 +35,8 @@ public class Configuration {
         return outputConf;
     }
 
-    public String getSink() {
-        return sink;
+    public List<String> getSinks() {
+        return sinks;
     }
 
     public static ConfigurationBuilder builder() {
@@ -45,13 +48,13 @@ public class Configuration {
         private int numberOfLines = 10;
         private String schema = "config.yaml";
         private String outputConf = "output.yaml";
-        private String format = "json";
-        private String sink = "cli";
+        private String defaultFormat = "json";
+        private List<String> sinks = new ArrayList<>();
 
         private ConfigurationBuilder() {}
 
-        public ConfigurationBuilder format(String format) {
-            this.format = format;
+        public ConfigurationBuilder defaultFormat(String format) {
+            this.defaultFormat = format;
             return this;
         }
 
@@ -71,12 +74,13 @@ public class Configuration {
         }
 
         public ConfigurationBuilder sink(String sink) {
-            this.sink = sink;
+            this.sinks.add(sink);
             return this;
         }
 
         public Configuration build() {
-            return new Configuration(numberOfLines, schema, format, outputConf, sink);
+            if (sinks.isEmpty()) sinks = List.of("cli");
+            return new Configuration(numberOfLines, schema, defaultFormat, outputConf, sinks);
         }
     }
 }

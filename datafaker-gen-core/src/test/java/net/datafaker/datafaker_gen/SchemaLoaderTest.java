@@ -17,7 +17,7 @@ class SchemaLoaderTest {
         String resourceName = "./schemas/config_test.yaml";
         String path = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(resourceName)).toURI()).toString();
 
-        Configuration configuration = DatafakerGen.parseArg(new String[]{"-f", "xml", "-n", "10", "-sink", "textfile", "-s", path});
+        Configuration configuration = ArgumentParser.parseArg(new String[]{"-f", "xml", "-n", "10", "-sink", "textfile", "-s", path});
         List<Field> fields = SchemaLoader.getFields(configuration);
 
         assertThat(fields).hasSize(1);

@@ -5,10 +5,12 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,7 +20,7 @@ class DatafakerGenTest {
 
     @ParameterizedTest
     @MethodSource("generateTestParameters")
-    void generateJsonWith10LineAndFileOutput(String input, int expectedLines) throws IOException {
+    void generateTextFiles(String input, int expectedLines) throws IOException {
         DatafakerGen.main(input.split("\\s+"));
 
         String resultFileNameFromConfig = "res";
@@ -31,28 +33,43 @@ class DatafakerGenTest {
     }
 
     @ParameterizedTest
-    @MethodSource("generateTestParseArgs")
-    void parseArgWhenFormatJsonAndTenLinesAndSinkCliTest(String input, List<String> expectedResult) {
-        Configuration configuration = DatafakerGen.parseArg(input.split("\\s+"));
+    @MethodSource("generateTestParametersWithMultiSink")
+    void generateTextFilesWithMultiSink(String input, List<List<String>> expectedResults) throws IOException, URISyntaxException {
+        if (input.contains("-oc")) {
+            int ocIndex = input.indexOf("-oc");
+            int endIndex = input.indexOf(" ", ocIndex + 4);
 
-        assertThat(configuration.getFormat()).isEqualTo(expectedResult.get(0));
-        assertThat(configuration.getNumberOfLines()).isEqualTo(Integer.valueOf(expectedResult.get(1)));
-        assertThat(configuration.getSink()).isEqualTo(expectedResult.get(2));
-        assertThat(configuration.getSchema()).isEqualTo(expectedResult.get(3));
-        assertThat(configuration.getOutputConf()).isEqualTo(expectedResult.get(4));
-    }
+            String outputTestConfigPath = (endIndex == -1 ? input.substring(ocIndex + 4) : input.substring(ocIndex + 4, endIndex)).trim();
+            String path = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(outputTestConfigPath)).toURI()).toString();
+            input = input.replace(outputTestConfigPath, path);
+        }
 
-    private static Stream<Arguments> generateTestParseArgs() {
-        return Stream.of(
-                of("-f xml -n 10 -sink cli", List.of("xml", "10", "cli", "config.yaml", "output.yaml")),
-                of("-f xml -n 10 -sink cli -oc test.yaml", List.of("xml", "10", "cli", "config.yaml", "test.yaml"))
-        );
+        DatafakerGen.main(input.split("\\s+"));
+
+        String resultFileNameFromConfig = "res";
+        for (List<String> expectedResult : expectedResults) {
+            String extantion = expectedResult.get(0);
+            String expectedLines = expectedResult.get(1);
+            Path tempFile = Paths.get(resultFileNameFromConfig + extantion);
+            List<String> lines = Files.readAllLines(tempFile);
+            assertThat(lines).hasSize(Integer.valueOf(expectedLines));
+
+            // Clean up
+            Files.delete(tempFile);
+        }
     }
 
     private static Stream<Arguments> generateTestParameters() {
         return Stream.of(
                 of("-f xml -n 10 -sink textfile -oc output.yaml", 10),
                 of("-f json -n 10 -sink textfile -oc output.yaml", 12)
+        );
+    }
+
+    private static Stream<Arguments> generateTestParametersWithMultiSink() {
+        return Stream.of(
+                of("-f xml -n 10 -oc ./outputs/output_test.yaml -sink textfile textfile:json", List.of(List.of(".xml", "10"), List.of(".json", "12"))),
+                of("-f xml -n 10 -sink textfile textfile:json -oc ./outputs/output_test.yaml", List.of(List.of(".xml", "10"), List.of(".json", "12")))
         );
     }
 }
