@@ -12,7 +12,6 @@ formats:
     separator: $$$$$$$
     extension: .csv
   json:
-    formattedAs: "[]"
     extension: .json
   yaml:
     extension: .yaml

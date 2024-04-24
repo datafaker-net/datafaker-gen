@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -109,7 +110,7 @@ public class DatafakerGen {
     }
 
     private static Map<String, String> getFromatConfig(Map<String, Object> formatConf, String formatName) {
-        return (Map<String, String>) formatConf.get(formatName);
+        return Objects.requireNonNullElse((Map<String, String>) formatConf.get(formatName), Collections.emptyMap());
     }
 
     private static class SinkToFormat {

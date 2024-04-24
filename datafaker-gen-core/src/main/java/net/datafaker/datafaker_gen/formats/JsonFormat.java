@@ -19,11 +19,6 @@ public class JsonFormat implements Format<Object> {
         }
         for (Map.Entry<String, String> entry : config.entrySet()) {
             switch (entry.getKey().toLowerCase(Locale.ROOT)) {
-                case "formattedas":
-                    builder.formattedAs("[]".equals(entry.getValue())
-                            ? JsonTransformer.JsonTransformerBuilder.FormattedAs.JSON_ARRAY
-                            : JsonTransformer.JsonTransformerBuilder.FormattedAs.JSON_OBJECT);
-                    break;
                 case "commabetweenobjects":
                     builder.withCommaBetweenObjects(Boolean.parseBoolean(entry.getValue()));
                     break;
