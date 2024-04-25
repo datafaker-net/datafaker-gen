@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <datafaker.version>2.2.1</datafaker.version>
+        <datafaker.version>2.2.2</datafaker.version>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
