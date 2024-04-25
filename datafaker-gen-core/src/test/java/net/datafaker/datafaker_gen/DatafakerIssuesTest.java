@@ -9,4 +9,9 @@ public class DatafakerIssuesTest {
        (new Faker()).idNumber().valid();
        (new Faker()).regexify("[a-z]{6}");
     }
+
+    @Test
+    void issue1170() {
+        new Faker().locality().localeString();
+    }
 }
