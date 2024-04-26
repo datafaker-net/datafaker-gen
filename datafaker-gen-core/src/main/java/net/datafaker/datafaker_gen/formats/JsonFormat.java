@@ -1,18 +1,19 @@
 package net.datafaker.datafaker_gen.formats;
 
 import net.datafaker.transformations.JsonTransformer;
+import net.datafaker.transformations.Transformer;
 
 import java.util.Locale;
 import java.util.Map;
 
-public class JsonFormat implements Format<Object> {
+public class JsonFormat implements Format<CharSequence> {
     @Override
     public String getName() {
         return "json";
     }
 
     @Override
-    public <IN> JsonTransformer<IN> getTransformer(Map<String, String> config) {
+    public <IN> Transformer<IN, CharSequence> getTransformer(Map<String, String> config) {
         final JsonTransformer.JsonTransformerBuilder<Object> builder = JsonTransformer.builder();
         if (config == null) {
             return (JsonTransformer<IN>) builder.build();
