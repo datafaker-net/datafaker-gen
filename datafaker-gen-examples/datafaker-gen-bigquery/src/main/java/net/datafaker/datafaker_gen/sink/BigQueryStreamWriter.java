@@ -61,8 +61,8 @@ public class BigQueryStreamWriter {
                 .setExecutorProvider(FixedExecutorProvider.create(Executors.newScheduledThreadPool(100)))
                 .setChannelProvider(
                         BigQueryWriteSettings.defaultGrpcTransportProviderBuilder()
-                                .setKeepAliveTime(org.threeten.bp.Duration.ofMinutes(1))
-                                .setKeepAliveTimeout(org.threeten.bp.Duration.ofMinutes(1))
+                                .setKeepAliveTime(org.threeten.bp.Duration.ofSeconds(configuration.getKeepAliveTimeInSeconds()))
+                                .setKeepAliveTimeout(org.threeten.bp.Duration.ofSeconds(configuration.getKeepAliveTimeoutInSeconds()))
                                 .setKeepAliveWithoutCalls(true)
                                 // .setChannelsPerCpu(2)
                                 .build())

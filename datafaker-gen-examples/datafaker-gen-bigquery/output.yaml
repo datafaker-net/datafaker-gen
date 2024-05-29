@@ -4,10 +4,12 @@ sinks:
     project_id: gcp_project_id
     dataset: datafaker
     table: users
-    service_account: path_to_service_account.json
+    service_account: path_to_service_account.json # Path to the service account file
     create_table_if_not_exists: true
     max_outstanding_elements_count: 100
     max_outstanding_request_bytes: 10000
+    keep_alive_time_in_seconds: 60
+    keep_alive_timeout_in_seconds: 60
 
 formats:
   csv:
