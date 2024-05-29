@@ -161,3 +161,12 @@ it gives something like
 {"lastname": "Altenwerth", "firstname": "陽子", "phone numbers": ["(503) 412-1163 x5984", "1-260-832-0986"], "address": {"country": "Dominican Republic", "city": "East Ed", "street address": "955 Martin Tunnel"}}
 ]
 ```
+
+
+## Examples
+
+There are several examples in `datafaker-gen-examples` directory.
+There are list of Sink examples:
+
+  - `RabbitMQ` - sends generated data to RabbitMQ
+  - `BigQuery` - sends generated data to BigQuery
