@@ -1,11 +1,13 @@
 package net.datafaker.datafaker_gen.sink;
 
 import com.google.api.pathtemplate.ValidationException;
+import com.google.cloud.Timestamp;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FieldList;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.StandardSQLTypeName;
 import com.google.cloud.bigquery.StandardTableDefinition;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -25,8 +27,13 @@ public class SchemaGenerator {
         JSONTYPE_2_BIGQUERY_TYPE.put(Double.class, StandardSQLTypeName.FLOAT64);
         JSONTYPE_2_BIGQUERY_TYPE.put(Boolean.class, StandardSQLTypeName.BOOL);
         JSONTYPE_2_BIGQUERY_TYPE.put(JSONObject.class, StandardSQLTypeName.STRUCT);
-    }
 
+        JSONTYPE_2_BIGQUERY_TYPE.put(Timestamp.class, StandardSQLTypeName.TIMESTAMP);
+        JSONTYPE_2_BIGQUERY_TYPE.put(java.sql.Timestamp.class, StandardSQLTypeName.TIMESTAMP);
+        JSONTYPE_2_BIGQUERY_TYPE.put(java.sql.Date.class, StandardSQLTypeName.DATE);
+        JSONTYPE_2_BIGQUERY_TYPE.put(java.sql.Time.class, StandardSQLTypeName.TIME);
+        JSONTYPE_2_BIGQUERY_TYPE.put(java.math.BigDecimal.class, StandardSQLTypeName.NUMERIC);
+    }
 
     public static StandardTableDefinition getSchema(Function<Integer, ?> function) {
         JSONObject templateRecord = generateTemplateRecord(function);
@@ -40,19 +47,28 @@ public class SchemaGenerator {
 
     private static Field buildField(String fieldName, Object value) {
         StandardSQLTypeName standardSQLTypeName = JSONTYPE_2_BIGQUERY_TYPE.get(
-                value.getClass()
+                value instanceof JSONArray valueJSONArray ? valueJSONArray.get(0).getClass() : value.getClass()
         );
         if (standardSQLTypeName == null) {
             throw new ValidationException("Type " + value.getClass() + " is not supported");
         }
 
         Field.Builder fBuilder;
-        if (value instanceof JSONObject) {
+        if (value instanceof JSONObject
+                || (value instanceof JSONArray valueJSONArray && valueJSONArray.get(0) instanceof JSONObject)
+        ) {
+            if (value instanceof JSONArray valueJSONArray) {
+                value = valueJSONArray.getJSONObject(0);
+            }
             fBuilder = Field.newBuilder(fieldName, standardSQLTypeName, buildFieldList(value));
         } else {
             fBuilder = Field.newBuilder(fieldName, standardSQLTypeName);
         }
         fBuilder.setMode(Field.Mode.NULLABLE);
+
+        if (value instanceof JSONArray) {
+            fBuilder.setMode(Field.Mode.REPEATED);
+        }
 
         return fBuilder.build();
     }

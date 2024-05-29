@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SchemaGeneratorTest {
 
@@ -17,19 +16,19 @@ class SchemaGeneratorTest {
 
         StandardTableDefinition schemaDefinition = SchemaGenerator.getSchema(function);
 
-        assertNotNull(schemaDefinition);
-        assertNotNull(schemaDefinition.getSchema());
+        assertThat(schemaDefinition).isNotNull();
+        assertThat(schemaDefinition.getSchema()).isNotNull();
         FieldList fields = schemaDefinition.getSchema().getFields();
-        assertEquals(4, fields.size());
-        assertEquals("firstname", fields.get(0).getName());
-        assertEquals("id", fields.get(2).getName());
-        assertEquals("lastname", fields.get(3).getName());
-        assertEquals("address", fields.get(1).getName());
+        assertThat(fields).hasSize(4);
+        assertThat(fields.get(0).getName()).isEqualTo("firstname");
+        assertThat(fields.get(2).getName()).isEqualTo("id");
+        assertThat(fields.get(3).getName()).isEqualTo("lastname");
+        assertThat(fields.get(1).getName()).isEqualTo("address");
 
         FieldList subFields = fields.get(1).getSubFields();
-        assertEquals(3, subFields.size());
-        assertEquals("country", subFields.get(0).getName());
-        assertEquals("city", subFields.get(1).getName());
-        assertEquals("street address", subFields.get(2).getName());
+        assertThat(subFields).hasSize(3);
+        assertThat(subFields.get(0).getName()).isEqualTo("country");
+        assertThat(subFields.get(1).getName()).isEqualTo("city");
+        assertThat(subFields.get(2).getName()).isEqualTo("street address");
     }
 }

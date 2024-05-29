@@ -6,6 +6,11 @@ fields:
     generators: [ Name#lastName ]
   - name: firstname
     generators: [ Name#firstName ]
+  - name: phone numbers
+    type: array
+    minLength: 2
+    maxLength: 5
+    generators: [ PhoneNumber#phoneNumber, PhoneNumber#cellPhone ]
   - name: address
     type: struct
     fields:
