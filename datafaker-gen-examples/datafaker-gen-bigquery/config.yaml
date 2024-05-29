@@ -1,0 +1,17 @@
+default_locale: en-EN
+fields:
+  - name: id
+    generators: [ Number#randomNumber ]
+  - name: lastname
+    generators: [ Name#lastName ]
+  - name: firstname
+    generators: [ Name#firstName ]
+  - name: address
+    type: struct
+    fields:
+      - name: country
+        generators: [ Address#country ]
+      - name: city
+        generators: [ Address#city ]
+      - name: street address
+        generators: [ Address#streetAddress ]

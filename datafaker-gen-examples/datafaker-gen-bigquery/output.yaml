@@ -1,0 +1,19 @@
+sinks:
+  bigquery:
+    batchsize: 2
+    project_id: gcp_project_id
+    dataset: datafaker
+    table: users
+    service_account: path_to_service_account.json
+    create_table_if_not_exists: true
+    max_outstanding_elements_count: 100
+    max_outstanding_request_bytes: 10000
+
+formats:
+  csv:
+    quote: "@"
+    separator: $$$$$$$
+  json:
+  yaml:
+  xml:
+    pretty: true

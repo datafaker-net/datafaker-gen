@@ -17,5 +17,6 @@
 
     <modules>
         <module>datafaker-gen-rabbitmq</module>
+        <module>datafaker-gen-bigquery</module>
     </modules>
 </project>
