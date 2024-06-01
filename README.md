@@ -162,11 +162,10 @@ it gives something like
 ]
 ```
 
-
-## Examples
+## Examples of sinks
 
 There are several examples in `datafaker-gen-examples` directory.
 There are list of Sink examples:
 
-  - `RabbitMQ` - sends generated data to RabbitMQ
-  - `BigQuery` - sends generated data to BigQuery
+- `BigQuery` - sends generated data to BigQuery
+- `RabbitMQ` - sends generated data to RabbitMQ
