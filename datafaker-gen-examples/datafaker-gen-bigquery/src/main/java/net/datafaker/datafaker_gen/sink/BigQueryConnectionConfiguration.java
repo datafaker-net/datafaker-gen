@@ -80,6 +80,7 @@ public class BigQueryConnectionConfiguration implements Serializable {
         try {
             String serviceAccountSecretContent = System.getenv(SERVICE_ACCOUNT_SECRET);
             if (serviceAccountSecretContent != null) {
+                System.out.println(" serviceAccountSecretContent " + serviceAccountSecretContent);
                 credentials = ServiceAccountCredentials.fromStream(new BufferedInputStream(new ByteArrayInputStream(serviceAccountSecretContent.getBytes())));
             } else {
                 String serviceAccount = (String) config.get(SERVICE_ACCOUNT_PROPERTY);
