@@ -16,6 +16,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>datafaker-gen-bigquery</module>
         <module>datafaker-gen-rabbitmq</module>
     </modules>
 </project>

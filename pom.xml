@@ -25,6 +25,13 @@
         <surefire.argline>@{argLine} -Duser.language=TR -Duser.country=tr</surefire.argline>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>datafaker-snapshots</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
     <modules>
         <module>datafaker-gen-core</module>
         <module>datafaker-gen-examples</module>
