@@ -1,4 +1,4 @@
-default_locale: en-EN
+default_locale: en-US
 fields:
   - name: id
     generators: [ Number#randomNumber ]

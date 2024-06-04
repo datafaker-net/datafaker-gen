@@ -71,7 +71,7 @@ now it says that for `lastname` with probability `0.1` it will be emitted `null`
 By default, it is current locale however it could be changed.
 First there could be set a default locale for current config, second there could be set a locale per field like
 ```yaml
-default_locale: en-EN
+default_locale: en-US
 fields:
   - name: lastname
     nullRate: 0.1
@@ -96,7 +96,7 @@ outputs something like
 Sometimes one field should contain a collection like a person could have several phone numbers.
 Let's emulate this with this config
 ```yaml
-default_locale: en-EN
+default_locale: en-US
 fields:
   - name: lastname
     nullRate: 0.1
@@ -124,10 +124,10 @@ could be
 ```
 
 ## Struct
-Also sometimes field could be complex. For example a person could have an address consisting of `country`, `city` and a `streetAddress`.
+Also, sometimes field could be complex. For example a person could have an address consisting of `country`, `city` and a `streetAddress`.
 Here `struct` type could help
 ```yaml
-default_locale: en-EN
+default_locale: en-US
 fields:
   - name: lastname
     nullRate: 0.1
