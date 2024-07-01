@@ -162,7 +162,6 @@ it gives something like
 ]
 ```
 
-
 ## Examples of sinks
 
 There are several examples in `datafaker-gen-examples` directory.
