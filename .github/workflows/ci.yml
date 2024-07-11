@@ -4,10 +4,13 @@
 name: Java CI with Maven
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_call:
+    inputs:
+      skip_integration_tests:
+        description: "Skip integration tests"
+        required: false
+        type: boolean
+        default: false
 
 env:
   mvn_options: --batch-mode -Dstyle.color=always -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss.SSS
@@ -30,4 +33,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - name: Build with Maven
-        run: ./mvnw $mvn_options verify --file pom.xml
+        run: |
+          if [ "${{ inputs.skip_integration_tests }}" = "true" ]; then
+            ./mvnw ${{ env.mvn_options }} -DskipBigQueryIntegrationTests=true verify --file pom.xml
+          else
+            ./mvnw ${{ env.mvn_options }} verify --file pom.xml
+          fi
+        shell: bash
